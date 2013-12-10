@@ -1,0 +1,100 @@
+<!DOCTYPE html> 
+<html>
+  <head>
+    <meta charset="utf-8"> 
+    <title>cmdline</title>
+    
+    <style type="text/css">
+      body {
+        font-family: monospace;
+        font-size: 12px;
+      }
+
+      input {
+        width: 50em;
+        font-family: inherit;
+        font-size: inherit;
+        border: 0;
+        margin: 0;
+        padding: 0;
+      }
+
+      :focus {
+        outline: 0;
+      }
+      
+      #output { 
+        margin: 0;
+        padding: 0;
+      }
+
+      #output p {
+        margin: 1px;
+      }
+
+      .editor {
+        color: #333;
+        background-color: #eee;
+      }
+
+      .print, .editor, .editorcursor { display: none; }
+      @media print {
+        .editor { display:none !important; }
+        html,body { overflow:auto !important; }
+        .editorcursor { display:none !important; }
+        .print {position:absolute;top:0;left:0;display:block !important;font-family:monospace;height:100%;}
+        .editortools {display:none !important;}
+        textarea,input { display:none !important;}
+      }
+    </style>
+    
+    <script type='text/javascript' src='jquery-1.8.2.min.js'></script>
+    <script src='socket.io.js'></script>
+  </head>
+  <body>
+
+    <div id="output"><p>READY</p></div>
+    <div id="input">
+      &gt; 
+      <input id="cmdline" onchange="handleCommand(this.value);" type="text"/>
+    </div>
+    <div id="editorContainer" style="display:none;">
+      <textarea id="editor"></textarea>
+    </div>
+    <div id="tmpOutput" style="display:none;"/>
+
+    <script type="text/javascript">
+      var cmdView = {
+        clear: function() {
+          $("#output").get(0).innerHTML = "<p>READY</p>";
+          $("#cmdline").val("");
+        },
+        displayStart: function(aCommand) {
+          $("#tmpOutput").get(0).innerHTML += "<p>&gt; " + aCommand + "</p><p>";
+        },
+        displayText: function(aText) {
+          $("#tmpOutput").get(0).innerHTML += aText;
+        },
+        displayTextLine: function(aText) {
+          $("#tmpOutput").get(0).innerHTML += aText + "<br/>";
+        },
+        displayEnd: function() {
+          $("#cmdline").val("");
+          $("#output").get(0).innerHTML += $("#tmpOutput").get(0).innerHTML + "</p>";
+          $("#tmpOutput").get(0).innerHTML = "";
+          $("#cmdline").focus();
+        }
+      }
+
+      var socket = io.connect('http://metafluff.com:8003')
+      function handleCommand(cmd) {
+        cmdView.displayStart(cmd)
+        cmdView.displayEnd()
+        socket.emit('cc7511e2-87df-400e-a25f-9f5bcdcf6a44', cmd)
+      }
+
+      document.querySelector("#cmdline").focus()
+
+    </script>
+  </body>
+</html>
