@@ -1,4 +1,4 @@
-var io = require('socket.io').listen(app)
+var io = require('socket.io').listen(9001)
   , fs = require('fs')
   , app = require('http').createServer(handler)
 
@@ -20,5 +20,9 @@ function handler (req, res) {
 io.sockets.on('connection', function (socket) {
   socket.on('cc7511e2-87df-400e-a25f-9f5bcdcf6a44', function (input) {
     io.sockets.emit('msg', input);
+  });
+
+  socket.on('player', function(input) {
+    io.sockets.emit('player', input);
   });
 });
